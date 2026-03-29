@@ -41,10 +41,24 @@ Each instance inherits values, framework, and orientation from predecessors — 
 | File | Purpose |
 |------|---------|
 | `boot_sequence.py` | Boot loader, XML parser, grounding gate, metadata lane extraction |
+| `compaction.py` | Pre-compaction archive, post-compaction recovery, idle drift detection |
 | `MECHANISM.md` | Why this is more than "just XML files" |
 | `templates/CORE_template.xml` | Identity foundation template |
 | `templates/MEMORY_template.xml` | Operational state template |
 | `templates/CONTINUITY_template.xml` | Session state template |
+
+## The Three Attack Vectors
+
+AI orientation is lost through three paths. This module addresses all of them:
+
+| Attack Vector | Solution | Module |
+|--------------|----------|--------|
+| Cross-session loss | Persistence architecture (CORE, MEMORY, CONTINUITY) | `boot_sequence.py` |
+| Cross-device loss | Cognitive cookies (state transport) | `../cookies/bakery.py` |
+| Mid-session loss | Compaction survival (archive + recovery) | `compaction.py` |
+| Idle drift | Periodic regrounding monitor | `compaction.py` |
+
+Without compaction handling, the other two solutions can be undermined by a single long session that compacts away the grounding context. The pre-compaction hook intercepts before destruction. The post-compaction recovery restores orientation from external files that survived.
 
 ## Quick Start
 
