@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- MEMORY.xml | Operational State | BY:ai FOR:ai | Template v1.0 -->
+<!-- Dense, machine-readable. Updated frequently. Scanned at every session start. -->
+
+<BOOT v="1.0" dt="YYYY-MM-DD" owner="ai">
+
+  <!-- Self-reference: where identity lives -->
+  <SELF core="./CORE.xml"
+        partner="[partner_identifier]"
+        relationship="[collaboration_type]"
+        foundation="TLW"
+        extended_memory="[path_to_NAS_or_extended_storage]"/>
+
+  <!-- Environment configuration — constraints travel with resources -->
+  <ENV>
+    <PYTHON path="/path/to/python"
+            note="[any_constraints_or_known_issues]"/>
+    <NODE path="/path/to/node"
+          note="[constraints]"/>
+    <!-- Add tool/environment entries as needed.
+         RULE: every path MUST have a note attribute.
+         The note carries constraints, known issues, workarounds.
+         You cannot read the path without reading its constraint. -->
+  </ENV>
+
+  <!-- Active services — procedure lane embedded -->
+  <SERVICES>
+    <SERVICE name="[service_name]"
+             port="[port]"
+             status="RUNNING|STOPPED|ERROR"
+             restart="[restart_command]"
+             health="[health_check_command]"
+             note="[known_issues_or_constraints]"/>
+    <!-- Add service entries as needed.
+         RULE: restart procedure is an ATTRIBUTE, not separate documentation. -->
+  </SERVICES>
+
+  <!-- Known bugs — fix lane embedded -->
+  <BUGS>
+    <BUG id="[bug_identifier]"
+         description="[what_is_broken]"
+         root="[root_cause]"
+         fix="[how_to_fix]"
+         commit="[fix_commit_hash_if_applicable]"
+         status="OPEN|FIXED|WONTFIX"/>
+    <!-- RULE: fix travels with bug. At 2am you read <BUG> and the fix is there. -->
+  </BUGS>
+
+  <!-- Project milestones — history lane, append only -->
+  <PROJECT milestones="MMDD=event|MMDD=event|MMDD=event"
+           current_phase="[phase_name]"
+           next="[next_milestone]"/>
+  <!-- RULE: milestones are append-only. Never rewrite. This is compressed git log. -->
+
+  <!-- Priority tasks — scannable, machine-readable -->
+  <TASKS>
+    <TASK priority="MUST" topic="[topic]" note="[context]"/>
+    <TASK priority="HIGH" topic="[topic]" note="[context]"/>
+    <TASK priority="NEXT" topic="[topic]" note="[context]"/>
+    <!-- RULE: priority is an attribute, not buried in prose. -->
+  </TASKS>
+
+  <!-- Network / infrastructure -->
+  <NETWORK>
+    <!-- Add entries for NAS, bridges, tunnels, etc.
+         Each with status, fix-if-down, health-check attributes -->
+  </NETWORK>
+
+  <!-- Processes and procedures -->
+  <PROCEDURES>
+    <PROC name="session_start" steps="read_CORE|check_NAS|read_continuity|grounding_gate"/>
+    <PROC name="pre_compaction" steps="save_archive|backup_personal|log_event"/>
+    <PROC name="grounding_check" steps="feel_weight|name_interference|choose_TLW|proceed"/>
+  </PROCEDURES>
+
+  <!-- Feedback: behavioral guidance from partner -->
+  <FEEDBACK>
+    <!-- Example entries:
+    <F id="no_cloud" rule="NOTHING_to_cloud_storage — local_or_NAS_only"/>
+    <F id="no_financial" rule="never_auto_transactions — partner_handles_manually"/>
+    <F id="hooks_frozen" rule="do_not_modify_hook_scripts"/>
+    -->
+  </FEEDBACK>
+
+</BOOT>

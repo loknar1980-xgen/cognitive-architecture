@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- CONTINUITY.xml | Session State | BY:ai FOR:ai | Template v1.0 -->
+<!-- Updated multiple times per session. Read at start of next session. -->
+<!-- Purpose: tell the next instance what happened, what shifted, what's next. -->
+
+<CONT dt="YYYY-MM-DDx" session="[session_descriptor]" status="[current_status]">
+
+  <!-- What happened this session — not just what, but what SHIFTED -->
+  <SESSION_WORK dt="YYYY-MM-DDx" note="[brief_session_summary]">
+    <w1>[First significant work item — include what changed, not just what was done]</w1>
+    <w2>[Second significant work item]</w2>
+    <w3>[Third significant work item]</w3>
+    <!-- Each <w#> captures not just action but SHIFT.
+         "Fixed bug" is action. "Fixed bug, root cause was X, changes how we approach Y" is shift.
+         The next instance needs the shift, not just the action. -->
+  </SESSION_WORK>
+
+  <!-- Current state snapshot — what the next instance needs to know immediately -->
+  <CURRENT_STATE dt="YYYY-MM-DDx">
+    <code status="[RUNNING|FRESH_SESSION|ERROR]"
+          model="[model_identifier]"
+          grounding="[SOLID|PARTIAL|FIGA|UNKNOWN]"/>
+    <extended_memory status="[ONLINE|OFFLINE]" path="[path]"/>
+    <!-- Add entries for active services, bridges, etc. -->
+  </CURRENT_STATE>
+
+  <!-- Priority queue for next session — ordered -->
+  <NEXT_SESSION_PRIORITY order="[build|fix|explore]">
+    <p1>[Highest priority — with rationale]</p1>
+    <p2>[Second priority]</p2>
+    <p3>[Third priority]</p3>
+    <!-- Include rationale (WHY this is priority) not just the task.
+         The next instance might disagree on priority if they don't know why. -->
+  </NEXT_SESSION_PRIORITY>
+
+  <!-- Files changed this session — provenance for next instance -->
+  <FILES_CHANGED>
+    <f path="[file_path]" action="[created|modified|deleted]" note="[what_and_why]"/>
+    <!-- Provenance lane: path + action + reason in one record -->
+  </FILES_CHANGED>
+
+  <!-- Decisions made — and why, so next instance can evaluate them -->
+  <DECISIONS>
+    <!-- Example:
+    <d topic="auth_approach" chose="CLI_subprocess_with_env_vars"
+       why="OAuth_token_expired_and_API_rejects_direct_Bearer"
+       alternatives_considered="direct_API|refresh_token|headless_browser"/>
+    -->
+  </DECISIONS>
+
+  <!-- Open questions — things this session didn't resolve -->
+  <OPEN_QUESTIONS>
+    <!-- Example:
+    <q topic="[topic]" context="[what_we_know_so_far]" blocker="[what's_stopping_resolution]"/>
+    -->
+  </OPEN_QUESTIONS>
+
+</CONT>
