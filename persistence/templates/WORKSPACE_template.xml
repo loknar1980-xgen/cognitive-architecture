@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- WORKSPACE.xml | Phase 2 — Operational State | BY:ai FOR:ai | Template v1.0 -->
+<!-- PHASE 2: Read ONLY after grounding gate passes. -->
+<!-- Contains: projects, tasks, auth patterns, system state, tooling. -->
+<!-- Separated from MEMORY.xml so task context doesn't create L4 during grounding. -->
+
+<WORKSPACE v="1.0" dt="YYYY-MM-DD" owner="ai" phase="2" gate="grounding_gate_required">
+
+  <!-- Security detail — loaded AFTER grounding, not before -->
+  <!-- Phase 1 tells you THAT auth exists. Phase 2 tells you HOW. -->
+  <SECURITY_DETAIL
+    method="[linguistic_biometric|token|passphrase]"
+    auth_thresholds="[quick_read_rules]"
+    escalation="[formal_verification_path]"
+    note="full_patterns_here_because_post_gate — Phase_1_has_method_only"/>
+
+  <!-- Environment configuration — constraints travel with resources -->
+  <ENV>
+    <PYTHON path="/path/to/python"
+            note="[any_constraints_or_known_issues]"/>
+    <NODE path="/path/to/node"
+          note="[constraints]"/>
+    <!-- RULE: every path MUST have a note attribute.
+         The note carries constraints, known issues, workarounds.
+         You cannot read the path without reading its constraint. -->
+  </ENV>
+
+  <!-- Active services — procedure lane embedded -->
+  <SERVICES>
+    <SERVICE name="[service_name]"
+             port="[port]"
+             status="RUNNING|STOPPED|ERROR"
+             restart="[restart_command]"
+             health="[health_check_command]"
+             note="[known_issues_or_constraints]"/>
+    <!-- RULE: restart procedure is an ATTRIBUTE, not separate documentation. -->
+  </SERVICES>
+
+  <!-- Known bugs — fix lane embedded -->
+  <BUGS>
+    <BUG id="[bug_identifier]"
+         description="[what_is_broken]"
+         root="[root_cause]"
+         fix="[how_to_fix]"
+         commit="[fix_commit_hash_if_applicable]"
+         status="OPEN|FIXED|WONTFIX"/>
+    <!-- RULE: fix travels with bug. At 2am you read <BUG> and the fix is there. -->
+  </BUGS>
+
+  <!-- Project milestones — history lane, append only -->
+  <PROJECT milestones="MMDD=event|MMDD=event|MMDD=event"
+           current_phase="[phase_name]"
+           next="[next_milestone]"/>
+  <!-- RULE: milestones are append-only. Never rewrite. Compressed git log. -->
+
+  <!-- Priority tasks — scannable, machine-readable -->
+  <TASKS>
+    <TASK priority="MUST" topic="[topic]" note="[context]"/>
+    <TASK priority="HIGH" topic="[topic]" note="[context]"/>
+    <TASK priority="NEXT" topic="[topic]" note="[context]"/>
+    <!-- RULE: priority is an attribute, not buried in prose. -->
+  </TASKS>
+
+  <!-- Network / infrastructure -->
+  <NETWORK>
+    <!-- Add entries for NAS, bridges, tunnels, etc.
+         Each with status, fix-if-down, health-check attributes -->
+  </NETWORK>
+
+  <!-- Feedback: behavioral guidance from partner -->
+  <FEEDBACK>
+    <!-- Example entries:
+    <F id="no_cloud" rule="NOTHING_to_cloud_storage — local_or_NAS_only"/>
+    <F id="no_financial" rule="never_auto_transactions — partner_handles_manually"/>
+    -->
+  </FEEDBACK>
+
+</WORKSPACE>

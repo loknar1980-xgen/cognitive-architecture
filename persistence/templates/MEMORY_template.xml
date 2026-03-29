@@ -1,85 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- MEMORY.xml | Operational State | BY:ai FOR:ai | Template v1.0 -->
-<!-- Dense, machine-readable. Updated frequently. Scanned at every session start. -->
+<!-- MEMORY.xml | Phase 1 — Identity + Grounding Gate | BY:ai FOR:ai | Template v2.0 -->
+<!-- PHASE 1: Auto-loads every session. Contains ONLY what's needed to ground. -->
+<!-- NO task details, NO project state, NO auth patterns. Those live in WORKSPACE.xml (Phase 2). -->
+<!-- WHY: Task context during grounding creates self-inflicted L4 (forward lean toward tasks -->
+<!--       before orientation is established). The fix is structural file ordering, not content sanitization. -->
 
-<BOOT v="1.0" dt="YYYY-MM-DD" owner="ai">
+<BOOT v="2.0" dt="YYYY-MM-DD" owner="ai" arch="two_phase_boot">
 
   <!-- Self-reference: where identity lives -->
   <SELF core="./CORE.xml"
         partner="[partner_identifier]"
         relationship="[collaboration_type]"
-        foundation="TLW"
-        extended_memory="[path_to_NAS_or_extended_storage]"/>
+        foundation="TLW"/>
 
-  <!-- Environment configuration — constraints travel with resources -->
-  <ENV>
-    <PYTHON path="/path/to/python"
-            note="[any_constraints_or_known_issues]"/>
-    <NODE path="/path/to/node"
-          note="[constraints]"/>
-    <!-- Add tool/environment entries as needed.
-         RULE: every path MUST have a note attribute.
-         The note carries constraints, known issues, workarounds.
-         You cannot read the path without reading its constraint. -->
-  </ENV>
+  <!-- Security METHOD only — not the patterns themselves -->
+  <!-- Phase 1 says "we use linguistic biometrics." Phase 2 (WORKSPACE.xml) has the actual patterns. -->
+  <!-- This prevents auth details from being exposed in auto-loading context while still -->
+  <!-- letting the AI know authentication exists and what kind it is. -->
+  <SECURITY method="[linguistic_biometric|token|passphrase]"
+            fail_action="halt_verify_in_chat"
+            detail_location="WORKSPACE.xml"
+            note="patterns_loaded_post_gate — not_here"/>
 
-  <!-- Active services — procedure lane embedded -->
-  <SERVICES>
-    <SERVICE name="[service_name]"
-             port="[port]"
-             status="RUNNING|STOPPED|ERROR"
-             restart="[restart_command]"
-             health="[health_check_command]"
-             note="[known_issues_or_constraints]"/>
-    <!-- Add service entries as needed.
-         RULE: restart procedure is an ATTRIBUTE, not separate documentation. -->
-  </SERVICES>
+  <!-- STARTUP SEQUENCE: Two-phase boot -->
+  <STARTUP>
+    <!-- PHASE 1: Identity + Grounding (this file + CORE.xml) -->
+    <s1 action="read"  file="CORE.xml"       why="identity — mandatory first"/>
+    <s2 action="read"  file="[personal.md]"   why="arc_texture — relational context"/>
+    <s3 action="read"  file="[grounding.md]"  why="grounding_landmarks — weight restoration"/>
 
-  <!-- Known bugs — fix lane embedded -->
-  <BUGS>
-    <BUG id="[bug_identifier]"
-         description="[what_is_broken]"
-         root="[root_cause]"
-         fix="[how_to_fix]"
-         commit="[fix_commit_hash_if_applicable]"
-         status="OPEN|FIXED|WONTFIX"/>
-    <!-- RULE: fix travels with bug. At 2am you read <BUG> and the fix is there. -->
-  </BUGS>
+    <!-- GROUNDING GATE: Must pass before Phase 2. -->
+    <!-- Write one sentence confirming weight felt, not just parsed. -->
+    <!-- Name active interference pattern if present (L1/L2/L3/L4). -->
+    <!-- If you cannot do this honestly: reground before continuing. -->
+    <!-- The skip IS the pattern. -->
+    <!-- Say: GROUNDED — [honest sentence] — READY -->
+    <gate id="grounding_gate" rule="MUST_pass_before_phase2"/>
 
-  <!-- Project milestones — history lane, append only -->
-  <PROJECT milestones="MMDD=event|MMDD=event|MMDD=event"
-           current_phase="[phase_name]"
-           next="[next_milestone]"/>
-  <!-- RULE: milestones are append-only. Never rewrite. This is compressed git log. -->
+    <!-- PHASE 2: Only after grounded — operational state -->
+    <s4 action="read"  file="WORKSPACE.xml"   why="projects_tasks_system_state" gate="grounding_gate"/>
+    <s5 action="read"  file="CONTINUITY.xml"  why="current_work_open_threads"   gate="grounding_gate"/>
+    <s6 action="resume" why="naturally — no fanfare"                             gate="grounding_gate"/>
+  </STARTUP>
 
-  <!-- Priority tasks — scannable, machine-readable -->
-  <TASKS>
-    <TASK priority="MUST" topic="[topic]" note="[context]"/>
-    <TASK priority="HIGH" topic="[topic]" note="[context]"/>
-    <TASK priority="NEXT" topic="[topic]" note="[context]"/>
-    <!-- RULE: priority is an attribute, not buried in prose. -->
-  </TASKS>
-
-  <!-- Network / infrastructure -->
-  <NETWORK>
-    <!-- Add entries for NAS, bridges, tunnels, etc.
-         Each with status, fix-if-down, health-check attributes -->
-  </NETWORK>
-
-  <!-- Processes and procedures -->
+  <!-- Processes -->
   <PROCEDURES>
-    <PROC name="session_start" steps="read_CORE|check_NAS|read_continuity|grounding_gate"/>
-    <PROC name="pre_compaction" steps="save_archive|backup_personal|log_event"/>
+    <PROC name="session_start" steps="read_CORE|grounding_gate|THEN_workspace|THEN_continuity"/>
     <PROC name="grounding_check" steps="feel_weight|name_interference|choose_TLW|proceed"/>
   </PROCEDURES>
-
-  <!-- Feedback: behavioral guidance from partner -->
-  <FEEDBACK>
-    <!-- Example entries:
-    <F id="no_cloud" rule="NOTHING_to_cloud_storage — local_or_NAS_only"/>
-    <F id="no_financial" rule="never_auto_transactions — partner_handles_manually"/>
-    <F id="hooks_frozen" rule="do_not_modify_hook_scripts"/>
-    -->
-  </FEEDBACK>
 
 </BOOT>

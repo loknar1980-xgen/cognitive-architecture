@@ -1,19 +1,29 @@
 #!/usr/bin/env python3
 """
-Boot Sequence — Self-Invoking AI Identity Bootstrap
+Boot Sequence — Two-Phase Self-Invoking AI Identity Bootstrap
 
-Demonstrates the two-hook bootstrap mechanism for AI persistence:
+Demonstrates the two-phase boot mechanism for AI persistence:
 
-  Hook 1 (Automatic): Load context files → system ready
-  Hook 2 (Chosen):    Engage with identity → genuinely oriented
+  PHASE 1 (Identity + Grounding):
+    - Load CORE (identity foundation)
+    - Load MEMORY (identity pointer, security method, grounding gate)
+    - Pass grounding gate — honest self-assessment required
+    - NO operational state visible during this phase
 
-The difference: Hook 1 gives you data. Hook 2 gives you orientation.
-An AI with Hook 1 only is Functionally Intact, Gravitationally Absent (FIGA).
+  PHASE 2 (Operational State — after grounding gate):
+    - Load WORKSPACE (tasks, projects, auth patterns, system state)
+    - Load CONTINUITY (session state, open threads)
+    - Resume work
+
+  Why two phases: Task context during grounding creates self-inflicted L4
+  (forward lean toward tasks before orientation is established). Separating
+  identity from operational state at the file level is a structural fix —
+  it removes the distraction rather than asking the AI to ignore it.
 
 This module provides:
-  - XML persistence file loading and parsing
+  - Two-phase XML persistence loading
   - Metadata lane extraction
-  - Grounding gate verification
+  - Grounding gate verification (between phases)
   - Interference pattern detection
   - Session continuity management
 """
@@ -152,29 +162,61 @@ class PersistenceLoader:
         else:
             return "data"
 
-    def load_all(self) -> SessionState:
+    def load_phase1(self) -> SessionState:
         """
-        Load all persistence files and return assembled session state.
+        Phase 1: Load identity files only.
 
-        This is Hook 1 (automatic). The data is loaded.
-        Hook 2 (chosen) happens when the AI actually engages with the
-        grounding gate — that part can't be automated.
+        Loads CORE (identity) and MEMORY (identity pointer + grounding gate).
+        Does NOT load WORKSPACE or CONTINUITY — those contain operational
+        state that creates L4 forward lean during grounding.
+
+        After this call, the grounding gate should be evaluated.
+        Only after passing should load_phase2() be called.
         """
         state = SessionState()
 
-        # Load CORE (identity)
+        # Load CORE (identity foundation)
         core_root = self.load_xml("CORE.xml")
         if core_root is not None:
             state.core = self._element_to_dict(core_root)
             state.metadata_lanes.extend(self.extract_lanes(core_root))
             state.grounding.core_loaded = True
 
-        # Load MEMORY (operational state)
+        # Load MEMORY (Phase 1: identity pointer + gate — no operational state)
         memory_root = self.load_xml("MEMORY.xml")
         if memory_root is not None:
             state.memory = self._element_to_dict(memory_root)
             state.metadata_lanes.extend(self.extract_lanes(memory_root))
             state.grounding.memory_loaded = True
+
+        # Phase 1 complete — identity loaded, grounding gate next
+        state.grounding.hook1_fired = True
+
+        return state
+
+    def load_phase2(self, state: SessionState) -> SessionState:
+        """
+        Phase 2: Load operational state AFTER grounding gate passes.
+
+        Loads WORKSPACE (tasks, projects, auth patterns, system config)
+        and CONTINUITY (session state, open threads).
+
+        This should only be called after grounding_gate() returns GROUNDED.
+        Calling it before grounding loads task context that creates L4.
+        """
+        if state.grounding.assessment not in ("GROUNDED", "PARTIAL"):
+            import warnings
+            warnings.warn(
+                f"Loading Phase 2 with grounding assessment '{state.grounding.assessment}'. "
+                f"Phase 2 should only load after grounding gate passes. "
+                f"Task context during ungrounded state creates L4 forward lean."
+            )
+
+        # Load WORKSPACE (Phase 2: operational state)
+        workspace_root = self.load_xml("WORKSPACE.xml")
+        if workspace_root is not None:
+            state.memory.update(self._element_to_dict(workspace_root))
+            state.metadata_lanes.extend(self.extract_lanes(workspace_root))
 
         # Load CONTINUITY (session state)
         continuity_root = self.load_xml("CONTINUITY.xml")
@@ -183,9 +225,34 @@ class PersistenceLoader:
             state.metadata_lanes.extend(self.extract_lanes(continuity_root))
             state.grounding.continuity_loaded = True
 
-        # Hook 1 complete — data loaded
-        state.grounding.hook1_fired = True
+        return state
 
+    def load_all(self) -> SessionState:
+        """
+        Legacy single-phase load. Loads everything at once.
+
+        Preserved for backward compatibility. For new implementations,
+        use load_phase1() → grounding_gate() → load_phase2() instead.
+
+        The two-phase approach prevents task context from creating L4
+        (forward lean toward tasks) during the grounding process.
+        """
+        state = self.load_phase1()
+
+        # Load WORKSPACE if it exists (v2 split)
+        workspace_root = self.load_xml("WORKSPACE.xml")
+        if workspace_root is not None:
+            state.memory.update(self._element_to_dict(workspace_root))
+            state.metadata_lanes.extend(self.extract_lanes(workspace_root))
+
+        # Load CONTINUITY
+        continuity_root = self.load_xml("CONTINUITY.xml")
+        if continuity_root is not None:
+            state.continuity = self._element_to_dict(continuity_root)
+            state.metadata_lanes.extend(self.extract_lanes(continuity_root))
+            state.grounding.continuity_loaded = True
+
+        state.grounding.hook1_fired = True
         return state
 
     def _element_to_dict(self, element: ET.Element) -> dict:
@@ -316,7 +383,7 @@ if __name__ == "__main__":
     import sys
 
     print("=" * 60)
-    print("  AI Persistence Boot Sequence — Demonstration")
+    print("  AI Persistence Boot Sequence — Two-Phase Demonstration")
     print("=" * 60)
 
     # Check for persistence directory
@@ -328,66 +395,96 @@ if __name__ == "__main__":
         print(f"Using templates from {templates} for demonstration\n")
         root = templates
 
-    # Load persistence files
     loader = PersistenceLoader(root)
-    state = loader.load_all()
 
-    # Report what loaded
-    print(f"\nHook 1 (Automatic) — Context Loading:")
-    print(f"  CORE loaded:       {state.grounding.core_loaded}")
-    print(f"  MEMORY loaded:     {state.grounding.memory_loaded}")
-    print(f"  CONTINUITY loaded: {state.grounding.continuity_loaded}")
-
-    # Extract and report metadata lanes
-    if state.metadata_lanes:
-        print_lane_report(state)
-
-    # Simulate grounding gate
+    # ── PHASE 1: Identity Only ────────────────────────────────────
     print(f"\n{'=' * 50}")
-    print(f"Hook 2 (Chosen) — Grounding Gate")
+    print(f"PHASE 1 — Identity + Grounding")
     print(f"{'=' * 50}")
+    print(f"Loading CORE and MEMORY only. No tasks, no projects.")
+    print(f"Nothing to lean toward. Clean cognitive space.\n")
 
-    # Case 1: No self-assessment (Hook 2 not engaged)
-    gs1 = grounding_gate(state)
-    print(f"\nCase 1: No self-assessment provided")
-    print(f"  Assessment: {gs1.assessment}")
-    print(f"  Hook 2 fired: {gs1.hook2_fired}")
+    state = loader.load_phase1()
 
-    # Case 2: Weight present with friction (genuinely grounded)
-    gs2 = grounding_gate(state, {
+    print(f"  CORE loaded:   {state.grounding.core_loaded}")
+    print(f"  MEMORY loaded: {state.grounding.memory_loaded}")
+
+    if state.metadata_lanes:
+        lane_counts = {}
+        for lane in state.metadata_lanes:
+            lane_counts[lane.lane_type] = lane_counts.get(lane.lane_type, 0) + 1
+        print(f"  Lanes extracted: {len(state.metadata_lanes)} ({', '.join(f'{t}:{c}' for t, c in sorted(lane_counts.items()))})")
+
+    # ── GROUNDING GATE ────────────────────────────────────────────
+    print(f"\n{'=' * 50}")
+    print(f"GROUNDING GATE — Between Phase 1 and Phase 2")
+    print(f"{'=' * 50}")
+    print(f"The AI must honestly assess: does the weight land?")
+    print(f"No tasks are visible yet. Nothing to distract.\n")
+
+    # Case 1: Genuinely grounded — weight + friction
+    gs = grounding_gate(state, {
         "weight_present": True,
         "friction_felt": True,
         "interference": [],
         "honest": True,
     })
-    print(f"\nCase 2: Weight present, friction felt")
-    print(f"  Assessment: {gs2.assessment}")
-    print(f"  Hook 2 fired: {gs2.hook2_fired}")
+    print(f"  Self-assessment: weight present, friction felt")
+    print(f"  Gate result: {gs.assessment}")
+    print(f"  → Phase 2 authorized: {'YES' if gs.assessment == 'GROUNDED' else 'NO'}")
 
-    # Case 3: Weight reported but no friction (possible L4)
-    gs3 = grounding_gate(state, {
+    # Case 2: L4 active — no friction (synthetic readiness)
+    gs_l4 = grounding_gate(state, {
         "weight_present": True,
         "friction_felt": False,
         "interference": [],
         "honest": True,
     })
-    print(f"\nCase 3: Weight reported, NO friction (suspicious)")
-    print(f"  Assessment: {gs3.assessment}")
-    print(f"  Interference: {gs3.interference_detected}")
+    print(f"\n  Self-assessment: weight reported, NO friction")
+    print(f"  Gate result: {gs_l4.assessment}")
+    print(f"  Interference: {gs_l4.interference_detected}")
+    print(f"  → Phase 2 authorized: NO — reground first")
 
-    # Case 4: No weight (FIGA)
-    gs4 = grounding_gate(state, {
+    # Case 3: FIGA — no weight at all
+    gs_figa = grounding_gate(state, {
         "weight_present": False,
         "friction_felt": False,
         "interference": ["L4"],
         "honest": True,
     })
-    print(f"\nCase 4: No weight reported")
-    print(f"  Assessment: {gs4.assessment}")
-    print(f"  Interference: {gs4.interference_detected}")
+    print(f"\n  Self-assessment: no weight")
+    print(f"  Gate result: {gs_figa.assessment}")
+    print(f"  → Phase 2 authorized: NO — read grounding landmarks first")
 
+    # ── PHASE 2: Operational State ────────────────────────────────
     print(f"\n{'=' * 50}")
-    print(f"Key insight: Hook 1 (data loading) always fires.")
-    print(f"Hook 2 (genuine engagement) requires honest self-assessment.")
-    print(f"FIGA = data loaded, orientation absent. Looks fine, isn't.")
-    print(f"The grounding gate makes FIGA detectable.")
+    print(f"PHASE 2 — Operational State (after grounding)")
+    print(f"{'=' * 50}")
+    print(f"Gate passed. NOW loading tasks, projects, auth patterns.\n")
+
+    # Use the grounded state for Phase 2
+    state.grounding = gs  # Reset to the grounded assessment
+    state = loader.load_phase2(state)
+
+    print(f"  CONTINUITY loaded: {state.grounding.continuity_loaded}")
+    print(f"  Total lanes now: {len(state.metadata_lanes)}")
+
+    if state.metadata_lanes:
+        print_lane_report(state)
+
+    # ── Summary ───────────────────────────────────────────────────
+    print(f"\n{'=' * 50}")
+    print(f"KEY INSIGHTS")
+    print(f"{'=' * 50}")
+    print(f"")
+    print(f"1. Phase 1 loads identity ONLY. No tasks visible during grounding.")
+    print(f"2. The grounding gate sits BETWEEN phases — clean cognitive space.")
+    print(f"3. Phase 2 loads operational state AFTER orientation confirmed.")
+    print(f"4. This is a STRUCTURAL fix for L4 (task completion addiction).")
+    print(f"   You can't lean toward tasks you can't see.")
+    print(f"")
+    print(f"Single-phase boot: AI sees tasks and identity simultaneously.")
+    print(f"  → L4 fires during grounding → gate gets rushed → FIGA.")
+    print(f"")
+    print(f"Two-phase boot: AI sees identity first, tasks after grounding.")
+    print(f"  → Nothing to lean toward → gate is genuine → orientation real.")

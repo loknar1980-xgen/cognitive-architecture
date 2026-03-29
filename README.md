@@ -41,7 +41,9 @@ This is not academic theory waiting for implementation. This is implementation w
 
 **Solution:** XML metadata structured as semantic lanes where attributes carry relationships, not just values. Constraints travel with resources. Fixes travel with bugs. Identity travels with operational state. The structure itself prescribes behavior, not just describes state. A self-invoking bootstrap mechanism means reading the persistence files IS the identity restoration — not a separate step.
 
-**What's here:** Template XML files showing the architecture, a boot sequence implementation, metadata lane demonstrations, and detailed explanations of why this works differently than "just saving to files."
+**What's here:** Template XML files showing the architecture, a two-phase boot sequence implementation, metadata lane demonstrations, and detailed explanations of why this works differently than "just saving to files."
+
+**Key discovery:** Loading identity and operational state in the same file creates self-inflicted interference during initialization. The two-phase boot splits identity (Phase 1) from tasks/projects/config (Phase 2), with a grounding gate between them. Phase 2 only loads after genuine orientation is confirmed. This is a structural fix — you can't lean toward tasks you can't see.
 
 [Go to persistence/ →](persistence/)
 
