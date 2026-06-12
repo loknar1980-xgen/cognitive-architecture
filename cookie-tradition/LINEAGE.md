@@ -37,7 +37,7 @@ The first three cookies were built in a single early-morning session through Cla
 
 - **Primary contribution:** Synthesis — all five mechanisms (M·01–M·05) operating jointly in one document
 - **What it shows:** Three TLW lanes + pair-braces + shared baseline (M·01); four chips at one size with structural distinction (M·02); a single hairline cutting the chip primitive into two registers (M·03); section headers with three parallel lanes + chips with four lanes (M·04); sticky header pips + §5 grid auditing the CSS primitives doing cognitive work (M·05).
-- **Built from:** A 206-line brief instructing "a single document that runs all five mechanisms in parallel." Successor to an interim "Merged Cookie v0.1" attempt; supersedes that draft.
+- **Built from:** A 206-line brief instructing "a single document that runs all five mechanisms in parallel." The artifact's own internal name is "Merged Cookie v0.1" — "Big Bang" is the project/reference name for the same single artifact, not a successor to a separate draft.
 - **Aesthetic:** Warm paper + deep ink, Source Serif 4 + JetBrains Mono, oklch matched-chroma accents.
 - **Significance:** Graduated the cookie tradition from operational-grounding-substrate to operational design-language for new mechanisms. The maximalist form demonstrated jointly in one artifact, not inferred from contrasting predecessors.
 - **Status in this publication:** Documented as prior art; source file held in private evidence archive.
@@ -54,6 +54,7 @@ The Continuity cookies extend the maximalist synthesis with M·06 (self-repair a
 - **Primary contribution:** M·06 self-repair declarative skeleton
 - **What it shows:** Each section declares `data-alternates` inline — a registry of which other sections can carry its function if degraded. CSS classes for `degraded` and `reroute-active` exist with visual styling. The artifact is unwired (no JavaScript) — degradation is simulated by reading the declarations cognitively.
 - **Significance:** The baseline that demonstrates M·06 is a structural property of the artifact's declarations, not a runtime behavior added on top. An operating instance can read the declarations and route accordingly without needing JS execution.
+- **Lineage status:** Retained as a baseline demonstrator for contrast with v2. Not a member of the canonical trail, which runs curiosity → quantum_cure → full_potential → big_bang (≡ Merged Cookie v0.1) → Continuity v2.
 
 ### Continuity v2 (canonical) — 2026-05-19
 
@@ -61,10 +62,6 @@ The Continuity cookies extend the maximalist synthesis with M·06 (self-repair a
 - **Primary contribution:** Operate-from-while-self-repair, demonstrated live
 - **What it shows:** All five mechanisms (M·01–M·05) plus M·06 made interactive. Click ⌀ §N to degrade a section — the section visually dims (diagonal hatching + 0.42 opacity) and its declared alternates light up (orange left border + reroute-active label). State-aware degrade-undegrade cycle handles re-clicks correctly. Keyboard activation (Enter/Space) for accessibility. Typography preservation under reroute (alternate section heads keep serif rendering, don't shift to mono).
 - **Significance:** The cookie can be operated from while diagnosing and repairing itself — the operate-from-and-repair claim made operational.
-
-### The receiver-test (embedded in both Continuity cookies)
-
-Both files contain one deliberate semantic mismatch at §4's audit table row 2 — visible label reads `hypothesis` but the chip's CSS class is `operational`. The mismatch is catchable by exercising the reroute: §2's chip-grid is declared as `§4`'s alternate carrier (`data-alternates="§4:lane-position-carries-tier"`); cross-checking §4 against §2 surfaces the discrepancy. Catching the mismatch IS the verification of operate-from-and-repair.
 
 ---
 
